@@ -1,0 +1,15 @@
+{
+  "name": "bankslip",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:geovanij2/bankslip.git",
+  "author": "Geovani S. Junior <geovanij3@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  },
+  "scripts": {
+    "build": "yarn tsc",
+    "start": "yarn build && node ./dist/src/index.js"
+  }
+}
