@@ -58,28 +58,44 @@ export class Dealership implements BankSlipInterface {
     }
   }
   isValid(): boolean {
+    const barCode = this.barCode().split("").map(Number);
+
     if (this.realOrRefId === 6 || this.realOrRefId === 7) {
       // mod 10
-      if (this.calculateFieldVDMod10(this.field1) !== this.vdField1)
+      const fieldFactor = [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
+      const barCodeFactor = [
+        2, 1, 2, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2,
+        1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2,
+      ];
+
+      if (this.calculateVDMod10(this.field1, fieldFactor) !== this.vdField1)
         return false;
-      if (this.calculateFieldVDMod10(this.field2) !== this.vdField2)
+      if (this.calculateVDMod10(this.field2, fieldFactor) !== this.vdField2)
         return false;
-      if (this.calculateFieldVDMod10(this.field3) !== this.vdField3)
+      if (this.calculateVDMod10(this.field3, fieldFactor) !== this.vdField3)
         return false;
-      if (this.calculateFieldVDMod10(this.field4) !== this.vdField4)
+      if (this.calculateVDMod10(this.field4, fieldFactor) !== this.vdField4)
         return false;
-      if (this.calculateBarCodeVDMod10() !== this.barCodeVD) return false;
+      if (this.calculateVDMod10(barCode, barCodeFactor) !== this.barCodeVD)
+        return false;
     } else {
       // mod 11
-      if (this.calculateFieldVDMod11(this.field1) !== this.vdField1)
+      const fieldFactor = [4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+      const barCodeFactor = [
+        4, 3, 2, 0, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6,
+        5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2,
+      ];
+
+      if (this.calculateVDMod11(this.field1, fieldFactor) !== this.vdField1)
         return false;
-      if (this.calculateFieldVDMod11(this.field2) !== this.vdField2)
+      if (this.calculateVDMod11(this.field2, fieldFactor) !== this.vdField2)
         return false;
-      if (this.calculateFieldVDMod11(this.field3) !== this.vdField3)
+      if (this.calculateVDMod11(this.field3, fieldFactor) !== this.vdField3)
         return false;
-      if (this.calculateFieldVDMod11(this.field4) !== this.vdField4)
+      if (this.calculateVDMod11(this.field4, fieldFactor) !== this.vdField4)
         return false;
-      if (this.calculateBarCodeVDMod11() !== this.barCodeVD) return false;
+      if (this.calculateVDMod11(barCode, barCodeFactor) !== this.barCodeVD)
+        return false;
     }
 
     return true;
@@ -124,10 +140,9 @@ export class Dealership implements BankSlipInterface {
     return undefined;
   }
 
-  private calculateFieldVDMod10(field: number[]): number {
-    if (field.length !== 11) throw new Error("Field must have length 11");
-
-    const factor = [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
+  private calculateVDMod10(field: number[], factor: number[]): number {
+    if (field.length !== factor.length)
+      throw new Error("Field and factor must have same length");
 
     let sum = 0;
     for (let i = 0; i < field.length; i++) {
@@ -139,58 +154,13 @@ export class Dealership implements BankSlipInterface {
     return res === 10 ? 0 : res;
   }
 
-  private calculateFieldVDMod11(field: number[]): number {
-    if (field.length !== 11) throw new Error("Field must have length 11");
-
-    const factor = [4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  private calculateVDMod11(field: number[], factor: number[]): number {
+    if (field.length !== factor.length)
+      throw new Error("Field and factor must have same length");
 
     let sum = 0;
     for (let i = 0; i < field.length; i++) {
       sum += field[i] * factor[i];
-    }
-
-    const rem = sum % 11;
-
-    switch (rem) {
-      case 0:
-      case 1:
-        return 0;
-      case 10:
-        return 1;
-      default:
-        return 11 - rem;
-    }
-  }
-
-  private calculateBarCodeVDMod10(): number {
-    const barCode = this.barCode();
-
-    const factor = [
-      2, 1, 2, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1,
-      2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2,
-    ];
-
-    let sum = 0;
-    for (let i = 0; i < barCode.length; i++) {
-      sum += sumDigitsUntilOne(Number.parseInt(barCode[i]) * factor[i]);
-    }
-
-    const res = 10 - (sum % 10);
-
-    return res === 10 ? 0 : res;
-  }
-
-  private calculateBarCodeVDMod11(): number {
-    const barCode = this.barCode();
-
-    const factor = [
-      4, 3, 2, 0, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5,
-      4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2,
-    ];
-
-    let sum = 0;
-    for (let i = 0; i < barCode.length; i++) {
-      sum += Number.parseInt(barCode[i]) * factor[i];
     }
 
     const rem = sum % 11;
