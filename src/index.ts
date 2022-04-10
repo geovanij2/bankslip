@@ -1,9 +1,6 @@
 import { setupExpress } from "./setup/express";
 
 const app = setupExpress();
-app.listen(8080);
-
-console.log("21290001192110001210904475617405975870000002000");
-console.log("00190500954014481606906809350314337370000000100");
-
-console.log("846700000017435900240209024050002435842210108119");
+app.listen(8080, () => {
+  console.log("SERVER LISTENING ON LOCALHOST:8080");
+});
