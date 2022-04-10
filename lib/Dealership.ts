@@ -135,7 +135,7 @@ export class Dealership implements BankSlipInterface {
       Number.parseInt(day) > 0 &&
       Number.parseInt(day) < 32
     )
-      return year + "-" + month + day;
+      return year + "-" + month + "-" + day;
 
     return undefined;
   }
